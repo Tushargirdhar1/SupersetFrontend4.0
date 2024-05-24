@@ -59,6 +59,7 @@ import { LOG_ACTIONS_CHART_DOWNLOAD_AS_IMAGE } from 'src/logger/LogUtils';
 import { RootState } from 'src/dashboard/types';
 import { findPermission } from 'src/utils/findPermission';
 import { useCrossFiltersScopingModal } from '../nativeFilters/FilterBar/CrossFilters/ScopingModal/useCrossFiltersScopingModal';
+import { InfoCircleOutlined } from '@ant-design/icons';
 
 const MENU_KEYS = {
   DOWNLOAD_AS_IMAGE: 'download_as_image',
@@ -493,6 +494,7 @@ const SliceHeaderControls = (props: SliceHeaderControlsPropsWithRouter) => {
         <DrillDetailMenuItems
           chartId={slice.slice_id}
           formData={props.formData}
+          onIcon={false}
         />
       )}
 
@@ -521,12 +523,12 @@ const SliceHeaderControls = (props: SliceHeaderControlsPropsWithRouter) => {
           >
             {t('Export to .CSV')}
           </Menu.Item>
-          <Menu.Item
+          {/* <Menu.Item
             key={MENU_KEYS.EXPORT_XLSX}
             icon={<Icons.FileOutlined css={dropdownIconsStyles} />}
           >
             {t('Export to Excel')}
-          </Menu.Item>
+          </Menu.Item> */}
 
           {isFeatureEnabled(FeatureFlag.AllowFullCsvExport) &&
             props.supersetCanCSV &&
@@ -566,6 +568,29 @@ const SliceHeaderControls = (props: SliceHeaderControlsPropsWithRouter) => {
           onClick={() => {
             props.handleToggleFullSize();
           }}
+        />
+      )}
+      {slice.description && (
+        <ModalTrigger
+          triggerNode={
+            <InfoCircleOutlined         style={{
+              fontSize: 18,
+              height: 18,
+              cursor: 'pointer',
+            }}/>
+          }
+          modalTitle={t('Chart Description: %s', slice.slice_name)}
+          modalBody={<p>{slice.description}</p>}
+          draggable
+          resizable
+          responsive
+        />
+      )}
+      {isFeatureEnabled(FeatureFlag.DrillToDetail) && canDrillToDetail && (
+        <DrillDetailMenuItems
+          chartId={slice.slice_id}
+          formData={props.formData}
+          onIcon={true}
         />
       )}
       <NoAnimationDropdown

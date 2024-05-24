@@ -270,7 +270,7 @@ export default function transformProps(
   const defaultLabel = {
     formatter,
     show: showLabels,
-    color: theme.colors.grayscale.dark2,
+    // color: theme.colors.grayscale.dark2,
   };
 
   const chartPadding = getChartPadding(
@@ -304,7 +304,7 @@ export default function transformProps(
         label: {
           show: true,
           fontWeight: 'bold',
-          backgroundColor: theme.colors.grayscale.light5,
+          // backgroundColor: theme.colors.grayscale.light5,
         },
       },
       data: transformedData,

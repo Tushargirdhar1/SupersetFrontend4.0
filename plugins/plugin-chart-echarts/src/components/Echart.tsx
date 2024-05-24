@@ -57,15 +57,23 @@ function Echart(
     [selectedValues],
   );
   const previousSelection = useRef<string[]>([]);
+  const themeMode = localStorage.getItem('themeMode')
 
   useImperativeHandle(ref, () => ({
     getEchartInstance: () => chartRef.current,
   }));
-
+  
   useEffect(() => {
     if (!divRef.current) return;
-    if (!chartRef.current) {
-      chartRef.current = init(divRef.current);
+
+    if (themeMode === 'dark') {
+      if (!chartRef.current) {
+        chartRef.current = init(divRef.current, 'dark');
+      }
+    } else {
+      if (!chartRef.current) {
+        chartRef.current = init(divRef.current);
+      }
     }
 
     Object.entries(eventHandlers || {}).forEach(([name, handler]) => {
@@ -79,7 +87,7 @@ function Echart(
     });
 
     chartRef.current.setOption(echartOptions, true);
-  }, [echartOptions, eventHandlers, zrEventHandlers]);
+  }, [echartOptions, eventHandlers, zrEventHandlers, themeMode]);
 
   // highlighting
   useEffect(() => {
@@ -111,8 +119,13 @@ function Echart(
   // did mount
   useEffect(() => {
     handleSizeChange({ width, height });
-    return () => chartRef.current?.dispose();
-  }, []);
+    return () => {
+      if (chartRef.current) {
+        chartRef.current.dispose();
+        chartRef.current = undefined;
+      }
+    };
+  }, [themeMode, handleSizeChange, width, height]);
 
   useLayoutEffect(() => {
     handleSizeChange({ width, height });

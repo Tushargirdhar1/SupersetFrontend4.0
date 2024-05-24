@@ -57,6 +57,8 @@ import setPeriodicRunner, {
 import { PageHeaderWithActions } from 'src/components/PageHeaderWithActions';
 import DashboardEmbedModal from '../EmbeddedModal';
 import OverwriteConfirm from '../OverwriteConfirm';
+import ToggleThemeSwitch from '../ToggleThemeSwitch';
+import { FullscreenExitOutlined, FullscreenOutlined } from '@ant-design/icons';
 
 const extensionsRegistry = getExtensionsRegistry();
 
@@ -434,6 +436,30 @@ class Header extends React.PureComponent {
   hideEmbedModal = () => {
     this.setState({ showingEmbedModal: false });
   };
+  toggleFullScreen = () => {
+    const { isFullScreen } = this.state;
+    const element = document.documentElement;
+
+    if (!isFullScreen) {
+      if (element.requestFullscreen) {
+        element.requestFullscreen();
+      } else if (element.webkitRequestFullscreen) {
+        element.webkitRequestFullscreen();
+      } else if (element.msRequestFullscreen) {
+        element.msRequestFullscreen();
+      }
+    } else {
+      if (document.exitFullscreen) {
+        document.exitFullscreen();
+      } else if (document.webkitExitFullscreen) {
+        document.webkitExitFullscreen();
+      } else if (document.msExitFullscreen) {
+        document.msExitFullscreen();
+      }
+    }
+
+    this.setState({ isFullScreen: !isFullScreen });
+  };
 
   render() {
     const {
@@ -619,6 +645,8 @@ class Header extends React.PureComponent {
                 />
               ) : (
                 <div css={actionButtonsStyle}>
+                  {this.state.isFullScreen ? <FullscreenExitOutlined onClick={this.toggleFullScreen} /> : <FullscreenOutlined onClick={this.toggleFullScreen} />}
+                  <ToggleThemeSwitch forceRefreshAllCharts={this.forceRefresh}/>
                   {NavExtension && <NavExtension />}
                   {userCanEdit && (
                     <Button

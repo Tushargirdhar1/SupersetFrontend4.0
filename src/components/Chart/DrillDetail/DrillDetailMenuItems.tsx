@@ -35,6 +35,8 @@ import DrillDetailModal from './DrillDetailModal';
 import { getSubmenuYOffset } from '../utils';
 import { MenuItemTooltip } from '../DisabledMenuItemTooltip';
 import { MenuItemWithTruncation } from '../MenuItemWithTruncation';
+import { Tooltip } from 'antd';
+import { DeliveredProcedureOutlined } from '@ant-design/icons';
 
 const DRILL_TO_DETAIL_TEXT = t('Drill to detail by');
 
@@ -81,11 +83,13 @@ export type DrillDetailMenuItemsProps = {
   onSelection?: () => void;
   onClick?: (event: MouseEvent) => void;
   submenuIndex?: number;
+  onIcon?:boolean;
 };
 
 const DrillDetailMenuItems = ({
   chartId,
   formData,
+  onIcon,
   filters = [],
   isContextMenu = false,
   contextMenuY = 0,
@@ -132,30 +136,39 @@ const DrillDetailMenuItems = ({
     return isEmpty(metrics);
   }, [formData]);
 
-  let drillToDetailMenuItem;
-  if (handlesDimensionContextMenu && noAggregations) {
-    drillToDetailMenuItem = (
-      <DisabledMenuItem {...props} key="drill-detail-no-aggregations">
-        {t('Drill to detail')}
-        <MenuItemTooltip
-          title={t(
-            'Drill to detail is disabled because this chart does not group data by dimension value.',
-          )}
+  const drillDisabled = handlesDimensionContextMenu && noAggregations 
+    ? t('Drill to detail is disabled because this chart does not group data by dimension value.') 
+    : null;
+
+  const DRILL_TO_DETAIL = t('Drill to detail');
+
+  const drillToDetailMenuItem = drillDisabled ? (
+    <DisabledMenuItem {...props} key="drill-to-detail-disabled">
+      {DRILL_TO_DETAIL}
+      <MenuItemTooltip title={drillDisabled} />
+    </DisabledMenuItem>
+  ) : (
+    onIcon ? (
+      <Tooltip title={<span style={{color:'#000'}}>Drill to Detail</span>} color='#ffff'> 
+        <DeliveredProcedureOutlined
+          onClick={openModal.bind(null, [])}
+          style={{
+            fontSize: 18,
+            cursor: 'pointer',
+          }}
         />
-      </DisabledMenuItem>
-    );
-  } else {
-    drillToDetailMenuItem = (
+      </Tooltip>
+    ) : (
       <Menu.Item
         {...props}
-        key="drill-detail-no-filters"
+        key="drill-to-detail"
         onClick={openModal.bind(null, [])}
       >
-        {t('Drill to detail')}
+        {DRILL_TO_DETAIL}
       </Menu.Item>
-    );
-  }
-
+    )
+  );
+  
   let drillToDetailByMenuItem;
   if (!handlesDimensionContextMenu) {
     drillToDetailByMenuItem = (
