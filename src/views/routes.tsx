@@ -132,7 +132,7 @@ type Routes = {
 
 export const routes: Routes = [
   {
-    path: '/superset/welcome/',
+    path: '/vyakriti/welcome/',
     Component: Home,
   },
   {
@@ -140,7 +140,7 @@ export const routes: Routes = [
     Component: DashboardList,
   },
   {
-    path: '/superset/dashboard/:idOrSlug/',
+    path: '/vyakriti/dashboard/:idOrSlug/',
     Component: Dashboard,
   },
   {
@@ -206,7 +206,7 @@ export const routes: Routes = [
     Component: Chart,
   },
   {
-    path: '/superset/explore/p',
+    path: '/vyakriti/explore/p',
     Component: Chart,
   },
   {

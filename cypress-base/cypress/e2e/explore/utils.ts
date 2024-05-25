@@ -40,7 +40,7 @@ export const interceptV1ChartData = (alias = 'v1Data') => {
 };
 
 export function interceptExploreJson(alias = 'getJson') {
-  cy.intercept('POST', `/superset/explore_json/**`).as(alias);
+  cy.intercept('POST', `/vyakriti/explore_json/**`).as(alias);
 }
 
 export const interceptFormDataKey = () => {
@@ -89,5 +89,5 @@ export function saveChartToDashboard(dashboardName: string) {
 
 export function visitSampleChartFromList(chartName: string) {
   cy.getBySel('table-row').contains(chartName).click();
-  cy.intercept('POST', '/superset/explore_json/**').as('getJson');
+  cy.intercept('POST', '/vyakriti/explore_json/**').as('getJson');
 }

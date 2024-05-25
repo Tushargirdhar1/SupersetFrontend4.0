@@ -109,7 +109,7 @@ export default class ChartClient {
         (await buildQueryRegistry.get(visType)) ?? (() => formData);
       const requestConfig: RequestConfig = useLegacyApi
         ? {
-            endpoint: '/superset/explore_json/',
+            endpoint: '/vyakriti/explore_json/',
             postPayload: {
               form_data: buildQuery(formData),
             },
