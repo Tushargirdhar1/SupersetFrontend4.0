@@ -66,6 +66,9 @@ import {
   EchartsSunburstChartPlugin,
   EchartsBubbleChartPlugin,
   EchartsWaterfallChartPlugin,
+  EchartsTimeseriesRaindropChartPlugin,
+  BarLabelRotationChartPlugin,
+  EchartsPiePadAngleChartPlugin,
 } from '@superset-ui/plugin-chart-echarts';
 import {
   SelectFilterPlugin,
@@ -154,6 +157,11 @@ export default class MainPreset extends Preset {
         new EchartsWaterfallChartPlugin().configure({
           key: 'waterfall',
         }),
+        new EchartsTimeseriesRaindropChartPlugin().configure({
+          key: 'echarts_timeseries_raindrop',
+          }),
+        new BarLabelRotationChartPlugin().configure({ key: 'bar_label_rotation' }),
+        new EchartsPiePadAngleChartPlugin().configure({ key: 'piepadangle' }),
         new SelectFilterPlugin().configure({ key: FilterPlugins.Select }),
         new RangeFilterPlugin().configure({ key: FilterPlugins.Range }),
         new TimeFilterPlugin().configure({ key: FilterPlugins.Time }),

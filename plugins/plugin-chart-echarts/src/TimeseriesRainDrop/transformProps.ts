@@ -43,15 +43,14 @@ import {
   extractExtraMetrics,
   getOriginalSeries,
   isDerivedSeries,
-  getTimeOffset,
 } from '@superset-ui/chart-controls';
 import { EChartsCoreOption, SeriesOption } from 'echarts';
-import { LineStyleOption } from 'echarts/types/src/util/types';
+import { ZRLineType } from 'echarts/types/src/util/types';
 import {
-  EchartsTimeseriesChartProps,
-  EchartsTimeseriesFormData,
+  EchartsRaindropChartProps,
+  EchartsTimeseriesRaindropFormData,
   OrientationType,
-  TimeseriesChartTransformedProps,
+  TimeseriesChartRaindropTransformedProps,
 } from './types';
 import { DEFAULT_FORM_DATA } from './constants';
 import { ForecastSeriesEnum, ForecastValue, Refs } from '../types';
@@ -103,8 +102,8 @@ import {
 } from '../utils/formatters';
 
 export default function transformProps(
-  chartProps: EchartsTimeseriesChartProps,
-): TimeseriesChartTransformedProps {
+  chartProps: EchartsRaindropChartProps,
+): TimeseriesChartRaindropTransformedProps {
   const {
     width,
     height,
@@ -183,12 +182,14 @@ export default function transformProps(
     yAxisTitleMargin,
     yAxisTitlePosition,
     zoomable,
-  }: EchartsTimeseriesFormData = { ...DEFAULT_FORM_DATA, ...formData };
+    averageLine,
+    waterdrop,
+  }: EchartsTimeseriesRaindropFormData = { ...DEFAULT_FORM_DATA, ...formData };
   const refs: Refs = {};
-  const groupBy = ensureIsArray(groupby);
+
   const labelMap = Object.entries(label_map).reduce((acc, entry) => {
     if (
-      entry[1].length > groupBy.length &&
+      entry[1].length > groupby.length &&
       Array.isArray(timeCompare) &&
       timeCompare.includes(entry[1][0])
     ) {
@@ -196,7 +197,7 @@ export default function transformProps(
     }
     return { ...acc, [entry[0]]: entry[1] };
   }, {});
-
+  
   const colorScale = CategoricalColorNamespace.getScale(colorScheme as string);
   const rebasedData = rebaseForecastDatum(data, verboseMap);
   let xAxisLabel = getXAxisLabel(chartProps.rawFormData) as string;
@@ -220,7 +221,7 @@ export default function transformProps(
     getMetricLabel,
   );
 
-  const isMultiSeries = groupBy.length || metrics?.length > 1;
+  const isMultiSeries = groupby?.length || metrics?.length > 1;
 
   const [rawSeries, sortedTotalValues, minPositiveValue] = extractSeries(
     rebasedData,
@@ -270,22 +271,10 @@ export default function transformProps(
   const array = ensureIsArray(chartProps.rawFormData?.time_compare);
   const inverted = invert(verboseMap);
 
-  const offsetLineWidths = {};
-
   rawSeries.forEach(entry => {
-    const derivedSeries = isDerivedSeries(entry, chartProps.rawFormData);
-    const lineStyle: LineStyleOption = {};
-    if (derivedSeries) {
-      const offset = getTimeOffset(
-        entry,
-        ensureIsArray(chartProps.rawFormData?.time_compare),
-      )!;
-      if (!offsetLineWidths[offset]) {
-        offsetLineWidths[offset] = Object.keys(offsetLineWidths).length + 1;
-      }
-      lineStyle.type = 'dashed';
-      lineStyle.width = offsetLineWidths[offset];
-    }
+    const lineStyle = isDerivedSeries(entry, chartProps.rawFormData)
+      ? { type: 'dashed' as ZRLineType }
+      : {};
 
     const entryName = String(entry.name || '');
     const seriesName = inverted[entryName] || entryName;
@@ -297,7 +286,6 @@ export default function transformProps(
       colorScaleKey,
       {
         area,
-        connectNulls: derivedSeries,
         filterState,
         seriesContexts,
         markerEnabled,
@@ -322,9 +310,12 @@ export default function transformProps(
         sliceId,
         isHorizontal,
         lineStyle,
+        timeCompare: array,
+        averageLine,
+        waterdrop,
       },
     );
-    if (transformedSeries) {
+      if (transformedSeries) {
       if (stack === StackControlsValue.Stream) {
         // bug in Echarts - `stackStrategy: 'all'` doesn't work with nulls, so we cast them to 0
         series.push({
@@ -463,7 +454,11 @@ export default function transformProps(
     )
     .map(entry => entry.name || '')
     .concat(extractAnnotationLabels(annotationLayers, annotationData));
-
+  
+  const themeMode = localStorage.getItem('themeMode') || 'light';
+  const isDarkTheme = themeMode === 'dark';
+  const blackThemeColor = isDarkTheme ? '#ffffff' : '#000000'; 
+ 
   let xAxis: any = {
     type: xAxisType,
     name: xAxisTitle,
@@ -473,7 +468,11 @@ export default function transformProps(
       hideOverlap: true,
       formatter: xAxisFormatter,
       rotate: xAxisLabelRotation,
+      color:blackThemeColor,
     },
+  //   splitLine: {
+  //     show: false
+  //  },
     minorTick: { show: minorTicks },
     minInterval:
       xAxisType === AxisType.Time && timeGrainSqla
@@ -503,7 +502,11 @@ export default function transformProps(
         defaultFormatter,
         yAxisFormat,
       ),
+      color:blackThemeColor,
     },
+  //   splitLine: {
+  //     show: false
+  //  },
     scale: truncateYAxis,
     name: yAxisTitle,
     nameGap: convertInteger(yAxisTitleMargin),
@@ -523,8 +526,12 @@ export default function transformProps(
   const echartOptions: EChartsCoreOption = {
     useUTC: true,
     grid: {
+      
       ...defaultGrid,
-      ...padding,
+      bottom: 10,
+      left: 10,
+      right: 80,
+      top: 50,
     },
     xAxis,
     yAxis,
@@ -555,7 +562,7 @@ export default function transformProps(
           // if there are no dimensions, key is a verbose name of a metric,
           // otherwise it is a comma separated string where the first part is metric name
           const formatterKey =
-            groupBy.length === 0 ? inverted[key] : labelMap[key]?.[0];
+            groupby.length === 0 ? inverted[key] : labelMap[key]?.[0];
           const content = formatForecastTooltipSeries({
             ...value,
             seriesName: key,
@@ -585,6 +592,9 @@ export default function transformProps(
         legendState,
       ),
       data: legendData as string[],
+      textStyle: {
+        color: blackThemeColor, // Set legend text color
+      },
     },
     series: dedupSeries(series),
     toolbox: {
@@ -593,7 +603,6 @@ export default function transformProps(
       right: TIMESERIES_CONSTANTS.toolboxRight,
       feature: {
         dataZoom: {
-          ...(stack ? { yAxisIndex: false } : {}), // disable y-axis zoom for stacked charts
           title: {
             zoom: t('zoom area'),
             back: t('restore zoom'),
@@ -613,7 +622,16 @@ export default function transformProps(
         ]
       : [],
   };
-
+  // if (echartOptions.series && echartOptions.series.length > 0) {
+  //   echartOptions.series.forEach(series => {
+  //     if (series.type === 'bar' || series.type === 'line' || series.type === 'scatter' || series.type === 'smoothline' || series.type === 'area') {
+  //       series.label = {
+  //         ...series.label,
+  //         color: blackThemeColor,
+  //       };
+  //     }
+  //   });
+  // }
   const onFocusedSeries = (seriesName: string | null) => {
     focusedSeries = seriesName;
   };
@@ -622,7 +640,7 @@ export default function transformProps(
     echartOptions,
     emitCrossFilters,
     formData,
-    groupby: groupBy,
+    groupby,
     height,
     labelMap,
     selectedValues,

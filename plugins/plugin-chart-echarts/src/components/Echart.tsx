@@ -75,6 +75,11 @@ function Echart(
         chartRef.current = init(divRef.current);
       }
     }
+    // when enable this pass the updatedEchartOPtions to chartRef.current.setOption(updatedEchartOptions, true) in line number 94
+    // const updatedEchartOptions = {
+    //   ...echartOptions,
+    //   backgroundColor: themeMode === 'dark' ? '#000000' : echartOptions.backgroundColor,
+    // };
 
     Object.entries(eventHandlers || {}).forEach(([name, handler]) => {
       chartRef.current?.off(name);
