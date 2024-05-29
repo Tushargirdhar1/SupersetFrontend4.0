@@ -26,15 +26,16 @@ import {
   t,
   ValueFormatter,
   getValueFormatter,
+  tooltipHtml,
 } from '@superset-ui/core';
 import { CallbackDataParams } from 'echarts/types/src/util/types';
 import { EChartsCoreOption, PieSeriesOption } from 'echarts';
 import {
   DEFAULT_FORM_DATA as DEFAULT_PIE_FORM_DATA,
-  EchartsPiePadAngleChartProps,
-  EchartsPiePadAngleFormData,
+  EchartsNightingalePieChartProps,
+  EchartsNightingalePieFormData,
   EchartsPieLabelType,
-  PieChartPadAngleTransformedProps,
+  PieChartTransformedProps,
 } from './types';
 import { DEFAULT_LEGEND_FORM_DATA, OpacityEnum } from '../constants';
 import {
@@ -51,40 +52,20 @@ import { Refs } from '../types';
 
 const percentFormatter = getNumberFormatter(NumberFormats.PERCENT_2_POINT);
 
-export function formatPieLabel({
+export function parseParams({
   params,
-  labelType,
   numberFormatter,
   sanitizeName = false,
 }: {
   params: Pick<CallbackDataParams, 'name' | 'value' | 'percent'>;
-  labelType: EchartsPieLabelType;
   numberFormatter: ValueFormatter;
   sanitizeName?: boolean;
-}): string {
+}): string[] {
   const { name: rawName = '', value, percent } = params;
   const name = sanitizeName ? sanitizeHtml(rawName) : rawName;
   const formattedValue = numberFormatter(value as number);
   const formattedPercent = percentFormatter((percent as number) / 100);
-
-  switch (labelType) {
-    case EchartsPieLabelType.Key:
-      return name;
-    case EchartsPieLabelType.Value:
-      return formattedValue;
-    case EchartsPieLabelType.Percent:
-      return formattedPercent;
-    case EchartsPieLabelType.KeyValue:
-      return `${name}: ${formattedValue}`;
-    case EchartsPieLabelType.KeyValuePercent:
-      return `${name}: ${formattedValue} (${formattedPercent})`;
-    case EchartsPieLabelType.KeyPercent:
-      return `${name}: ${formattedPercent}`;
-    case EchartsPieLabelType.ValuePercent:
-      return `${formattedValue} (${formattedPercent})`;
-    default:
-      return name;
-  }
+  return [name, formattedValue, formattedPercent];
 }
 
 function getTotalValuePadding({
@@ -136,8 +117,8 @@ function getTotalValuePadding({
 }
 
 export default function transformProps(
-  chartProps: EchartsPiePadAngleChartProps,
-): PieChartPadAngleTransformedProps {
+  chartProps: EchartsNightingalePieChartProps,
+): PieChartTransformedProps {
   const {
     formData,
     height,
@@ -175,7 +156,8 @@ export default function transformProps(
     showLabelsThreshold,
     sliceId,
     showTotal,
-  }: EchartsPiePadAngleFormData = {
+    roseType,
+  }: EchartsNightingalePieFormData = {
     ...DEFAULT_LEGEND_FORM_DATA,
     ...DEFAULT_PIE_FORM_DATA,
     ...formData,
@@ -259,12 +241,31 @@ export default function transformProps(
     },
     {},
   );
-  const formatter = (params: CallbackDataParams) =>
-    formatPieLabel({
+
+  const formatter = (params: CallbackDataParams) => {
+    const [name, formattedValue, formattedPercent] = parseParams({
       params,
       numberFormatter,
-      labelType,
     });
+    switch (labelType) {
+      case EchartsPieLabelType.Key:
+        return name;
+      case EchartsPieLabelType.Value:
+        return formattedValue;
+      case EchartsPieLabelType.Percent:
+        return formattedPercent;
+      case EchartsPieLabelType.KeyValue:
+        return `${name}: ${formattedValue}`;
+      case EchartsPieLabelType.KeyValuePercent:
+        return `${name}: ${formattedValue} (${formattedPercent})`;
+      case EchartsPieLabelType.KeyPercent:
+        return `${name}: ${formattedPercent}`;
+      case EchartsPieLabelType.ValuePercent:
+        return `${formattedValue} (${formattedPercent})`;
+      default:
+        return name;
+    }
+  };
 
   const defaultLabel = {
     formatter,
@@ -283,12 +284,10 @@ export default function transformProps(
       type: 'pie',
       ...chartPadding,
       animation: false,
+      roseType: roseType || undefined,
       radius: [`${donut ? innerRadius : 0}%`, `${outerRadius}%`],
       center: ['50%', '50%'],
-      avoidLabelOverlap: false,
-      itemStyle: {
-        borderRadius: 10,
-      },
+      avoidLabelOverlap: true,
       labelLine: labelsOutside && labelLine ? { show: true } : { show: false },
       minShowLabelAngle,
       label: labelsOutside
@@ -300,14 +299,14 @@ export default function transformProps(
           }
         : {
             ...defaultLabel,
-            position: 'center',
+            position: 'inner',
           },
       emphasis: {
         label: {
           show: true,
-          fontSize: 20,
-          fontWeight: 'bold'
-        }
+          fontWeight: 'bold',
+          // backgroundColor: theme.colors.grayscale.light5,
+        },
       },
       data: transformedData,
     },
@@ -321,13 +320,17 @@ export default function transformProps(
       ...getDefaultTooltip(refs),
       show: !inContextMenu,
       trigger: 'item',
-      formatter: (params: any) =>
-        formatPieLabel({
+      formatter: (params: any) => {
+        const [name, formattedValue, formattedPercent] = parseParams({
           params,
           numberFormatter,
-          labelType: EchartsPieLabelType.KeyValuePercent,
           sanitizeName: true,
-        }),
+        });
+        return tooltipHtml(
+          [[metricLabel, formattedValue, formattedPercent]],
+          name,
+        );
+      },
     },
     legend: {
       ...getLegendProps(legendType, legendOrientation, showLegend, theme),

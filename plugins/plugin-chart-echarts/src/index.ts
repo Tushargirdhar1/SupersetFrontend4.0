@@ -39,6 +39,7 @@ export { default as EchartsWaterfallChartPlugin } from './Waterfall';
 export { default as EchartsTimeseriesRaindropChartPlugin } from './TimeseriesRainDrop';
 export { default as BarLabelRotationChartPlugin } from './BarLabelRotation';
 export { default as EchartsPiePadAngleChartPlugin } from './PiePadAngle';
+export { default as EchartsNightingalePieChartPlugin } from './NightingalePie';
 
 export { default as BoxPlotTransformProps } from './BoxPlot/transformProps';
 export { default as FunnelTransformProps } from './Funnel/transformProps';
@@ -56,6 +57,7 @@ export { default as WaterfallTransformProps } from './Waterfall/transformProps';
 export { default as TimeseriesNewTransformProps } from './TimeseriesRainDrop/transformProps';
 export { default as BarLabelTransformProps } from './BarLabelRotation/transformProps';
 export { default as PiePadAngleTransformProps } from './PiePadAngle/transformProps';
+export { default as NightingalePieTransformProps } from './NightingalePie/transformProps';
 
 export { DEFAULT_FORM_DATA as TimeseriesDefaultFormData } from './Timeseries/constants';
 
