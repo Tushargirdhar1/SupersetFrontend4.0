@@ -524,6 +524,44 @@ export function dedupSeries(series: SeriesOption[]): SeriesOption[] {
     };
   });
 }
+// export function convertToDataArray(series: SeriesOption[]): number[][] {
+//   const dataArray: number[][] = [];
+//   series.forEach(item => {
+//     const dataPoints: number[] = item.data.map(dataPoint => dataPoint[1]);
+//     dataArray.push(dataPoints);
+//   });
+//   return dataArray;
+// } 
+export function convertToDataArray(series: SeriesOption[]): number[][] {
+  const dataArray: number[][] = [];
+  
+  for (let i = 0; i < series[0].data.length; i++) {
+    dataArray.push([]);
+  }
+
+  series.forEach((item, index) => {
+    for (let i = 0; i < item.data.length; i++) {
+      if (dataArray.length > 0) {
+        dataArray[i][index] = item.data[i][1]
+      }
+    }
+  });
+
+  return dataArray;
+}
+
+export function retrieveIds(series: SeriesOption[]): string[] {
+  // Initialize an empty list to store the IDs
+  let ids: string[] = [];
+  
+  // Iterate through the dataArray and collect the IDs
+  for (let i = 0; i < series.length; i++) {
+      if (series[i].id) {
+          ids.push(series[i].id);
+      }
+  }
+  return ids;
+}
 
 export function sanitizeHtml(text: string): string {
   return format.encodeHTML(text);

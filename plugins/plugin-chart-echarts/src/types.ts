@@ -138,7 +138,25 @@ export interface BaseTransformedProps<F> {
   emitCrossFilters?: boolean;
   coltypeMapping?: Record<string, number>;
 }
-
+export interface BaseTransformedRaceProps<F> {
+  echartOptions: EChartsCoreOption;
+  formData: F;
+  height: number;
+  onContextMenu?: (
+    clientX: number,
+    clientY: number,
+    filters?: ContextMenuFilters,
+  ) => void;
+  setDataMask?: SetDataMaskHook;
+  onLegendStateChanged?: (state: LegendState) => void;
+  filterState?: FilterState;
+  refs: Refs;
+  width: number;
+  emitCrossFilters?: boolean;
+  coltypeMapping?: Record<string, number>;
+  dataArray?: any[];
+  duration?: number;
+}
 export type CrossFilterTransformedProps = {
   groupby: QueryFormColumn[];
   labelMap: Record<string, string[]>;

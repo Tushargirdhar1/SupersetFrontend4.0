@@ -40,6 +40,7 @@ export { default as EchartsTimeseriesRaindropChartPlugin } from './TimeseriesRai
 export { default as BarLabelRotationChartPlugin } from './BarLabelRotation';
 export { default as EchartsPiePadAngleChartPlugin } from './PiePadAngle';
 export { default as EchartsNightingalePieChartPlugin } from './NightingalePie';
+export { default as EchartsTimeseriesRaceChartPlugin } from './TimeseriesRace';
 
 export { default as BoxPlotTransformProps } from './BoxPlot/transformProps';
 export { default as FunnelTransformProps } from './Funnel/transformProps';
@@ -58,6 +59,7 @@ export { default as TimeseriesNewTransformProps } from './TimeseriesRainDrop/tra
 export { default as BarLabelTransformProps } from './BarLabelRotation/transformProps';
 export { default as PiePadAngleTransformProps } from './PiePadAngle/transformProps';
 export { default as NightingalePieTransformProps } from './NightingalePie/transformProps';
+export { default as TimeseriesBarRaceTransformProps } from './TimeseriesRace/transformProps';
 
 export { DEFAULT_FORM_DATA as TimeseriesDefaultFormData } from './Timeseries/constants';
 

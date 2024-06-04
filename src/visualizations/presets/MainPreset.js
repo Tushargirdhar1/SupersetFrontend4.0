@@ -70,6 +70,7 @@ import {
   BarLabelRotationChartPlugin,
   EchartsPiePadAngleChartPlugin,
   EchartsNightingalePieChartPlugin,
+  EchartsTimeseriesRaceChartPlugin,
 } from '@superset-ui/plugin-chart-echarts';
 import {
   SelectFilterPlugin,
@@ -164,6 +165,9 @@ export default class MainPreset extends Preset {
         new BarLabelRotationChartPlugin().configure({ key: 'bar_label_rotation' }),
         new EchartsPiePadAngleChartPlugin().configure({ key: 'piepadangle' }),
         new EchartsNightingalePieChartPlugin().configure({ key: 'nightingalepie' }),
+        new EchartsTimeseriesRaceChartPlugin().configure({
+          key: 'echarts_timeseries_barrace',
+          }),
         new SelectFilterPlugin().configure({ key: FilterPlugins.Select }),
         new RangeFilterPlugin().configure({ key: FilterPlugins.Range }),
         new TimeFilterPlugin().configure({ key: FilterPlugins.Time }),
