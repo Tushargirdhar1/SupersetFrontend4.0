@@ -26,6 +26,7 @@ import {
   OrientationType,
   EchartsTimeseriesSeriesType,
   EchartsTimeseriesRaceFormData,
+  TimeFormat,
 } from './types';
 // import {
 //   DEFAULT_LEGEND_FORM_DATA,
@@ -87,6 +88,9 @@ export const DEFAULT_FORM_DATA: EchartsTimeseriesRaceFormData = {
   sort_series_ascending: false,
   duration: 6000,
   maxBars: 2,
+  showGraphic: true,
+  barColor: '#748',
+  timeFormat: TimeFormat.Month,
 };
 
 export const TIME_SERIES_DESCRIPTION_TEXT: string = t(

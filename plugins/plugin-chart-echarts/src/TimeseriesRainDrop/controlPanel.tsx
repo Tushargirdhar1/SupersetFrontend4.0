@@ -363,5 +363,4 @@ const config: ControlPanelConfig = {
     groupby: getStandardizedControls().popAllColumns(),
   }),
 };
-console.log(showValueSection, "showValueSection")
 export default config;

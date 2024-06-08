@@ -67,6 +67,7 @@ import {
   getLegendProps,
   getMinAndMaxFromBounds,
   retrieveIds,
+  retrieveTime,
 } from '../utils/series';
 import {
   extractAnnotationLabels,
@@ -186,6 +187,9 @@ export default function transformProps(
     zoomable,
     duration,
     maxBars,
+    showGraphic,
+    barColor,
+    timeFormat
   }: EchartsTimeseriesRaceFormData = { ...DEFAULT_FORM_DATA, ...formData };
   const refs: Refs = {};
 
@@ -314,6 +318,9 @@ export default function transformProps(
         lineStyle,
         timeCompare: array,
         maxBars,
+        showGraphic,
+        barColor,
+        timeFormat
       },
     );
       if (transformedSeries) {
@@ -614,12 +621,17 @@ export default function transformProps(
   //       ]
   //     : [],
   // };
+  
+  
   const deduplicatedSeries = dedupSeries(series);
   // Convert the deduplicated series data to the dataArray format
   const dataArray = convertToDataArray(deduplicatedSeries) || [];
 
   const yAxisData =retrieveIds(deduplicatedSeries) || [];
-  
+ 
+  const years =retrieveTime(deduplicatedSeries, timeFormat) || [];
+
+  let startYear = years[0];
   const echartOptions: echarts.EChartsCoreOption = {  
     xAxis: {
       max: 'dataMax'
@@ -634,18 +646,12 @@ export default function transformProps(
     scale: truncateYAxis,
     minorTick: { show: minorTicks },
     minorSplitLine: { show: minorSplitLine },
-    // axisLabel: {
-    //   formatter: getYAxisFormatter(
-    //     metrics,
-    //     forcePercentFormatter,
-    //     customFormatters,
-    //     defaultFormatter,
-    //     yAxisFormat,
-    //   ),
-    // },
-  //   splitLine: {
-  //     show: false
-  //  },
+    axisLabel: {
+      hideOverlap: true,
+      formatter: xAxisFormatter,
+      rotate: xAxisLabelRotation,
+    },
+  
     name: yAxisTitle,
     nameGap: convertInteger(yAxisTitleMargin),
     nameLocation: yAxisTitlePosition === 'Left' ? 'middle' : 'end',
@@ -656,43 +662,46 @@ export default function transformProps(
         name: 'X',
         type: 'bar',
         data: dataArray[0], // Initial data
+        color: barColor,
         label: {
           show: true,
           position: 'right',
           valueAnimation: true,
           formatter: '{c}', // Show the value on the bar
-          
         },
       },
     ],
-    // tooltip: {
-    //   show: true,
-    //   trigger: 'axis',
-    //   axisPointer: {
-    //     type: 'shadow'
-    //   },
-    //   formatter: function (params: any) {
-    //     let content = `${params[0].name}<br/>`;
-    //     params.forEach((item: any) => {
-    //       content += `${item.seriesName}: ${item.value}<br/>`;
-    //     });
-    //     return content;
-    //   }
-    // },
+  
     animationDuration: 0,
     animationDurationUpdate: 3000,
     animationEasing: 'linear',
-    animationEasingUpdate: 'linear'
+    animationEasingUpdate: 'linear',
+    graphic: showGraphic
+    ? {
+        elements: [
+          {
+            type: 'text',
+            right: 160,
+            bottom: 60,
+            style: {
+              text: startYear,
+              font: 'bolder 80px monospace',
+              fill: 'rgba(100, 100, 100, 0.25)',
+            },
+            z: 100,
+          },
+        ],
+      }
+    : null,
   };
 
   const onFocusedSeries = (seriesName: string | null) => {
     focusedSeries = seriesName;
   };
-  console.log(echartOptions,"echa")
-  
   return {
     echartOptions,
     dataArray,  // Pass dataArray here
+    years,
     duration,
     emitCrossFilters,
     formData,

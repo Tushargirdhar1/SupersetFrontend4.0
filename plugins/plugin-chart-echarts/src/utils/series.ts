@@ -563,6 +563,90 @@ export function retrieveIds(series: SeriesOption[]): string[] {
   return ids;
 }
 
+// export function retrieveTime(series: SeriesOption[], dateType?: string): string[] {
+//   const timeArray: string[] = [];
+//   for (let i = 0; i < series[0].data.length; i++) {
+//     const timestamp = series[0].data[i][0];
+//     const dateObject = new Date(timestamp);
+
+//     switch (dateType) {
+//       case "year": {
+//         timeArray.push(dateObject.getFullYear().toString());
+//         break;
+//       }
+//       case "month": {
+//         timeArray.push(dateObject.getMonth().toString());
+//         break;
+//       }
+//       case "month-year": {
+//         const dateTime = dateObject.getMonth().toString() + " " + dateObject.getFullYear().toString()
+//         timeArray.push(dateTime);
+//         break;
+//       }
+//       default: {
+//         timeArray.push(dateObject.getFullYear().toString());
+//         break;
+//       }
+//     }
+//   }
+//   return timeArray;
+// }
+export function retrieveTime(series: SeriesOption[], dateType?: string): (string | string[])[] {
+  const timeArray: (string | string[])[] = [];
+  const months: string[] = [
+    "Jan",
+    "Feb",
+    "Mar",
+    "Apr",
+    "May",
+    "Jun",
+    "Jul",
+    "Aug",
+    "Sep",
+    "Oct",
+    "Nov",
+    "Dec"
+  ];
+
+  for (let i = 0; i < series[0].data.length; i++) {
+    const value = series[0].data[i][0]; // Store the value for flexibility
+
+    // Handle different data types consistently
+    if (typeof value === 'string') {
+      timeArray.push(value); // Push the string value as a category
+    } else if (typeof value === 'number' || typeof value === 'object') {
+      const dateObject = new Date(value);
+      if (dateObject.toString() !== 'Invalid Date') { // Validate date format
+        switch (dateType) {
+          case "year": {
+            timeArray.push(dateObject.getFullYear().toString());
+            break;
+          }
+          case "month": {
+            timeArray.push(months[dateObject.getMonth()]);
+            break;
+          }
+          case "month-year": {
+            const dateTime = months[dateObject.getMonth()] + " " + dateObject.getFullYear().toString();
+            timeArray.push(dateTime);
+            break;
+          }
+          default: {
+            timeArray.push(dateObject.getFullYear().toString());
+            break;
+          }
+        }
+      } else {
+        timeArray.push('Invalid Date'); // Indicate invalid date format
+      }
+    } else {
+      timeArray.push('Unsupported data type'); // Handle unexpected data types
+    }
+  }
+
+  return timeArray;
+}
+
 export function sanitizeHtml(text: string): string {
   return format.encodeHTML(text);
 }

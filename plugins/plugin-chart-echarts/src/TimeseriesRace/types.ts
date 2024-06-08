@@ -51,6 +51,11 @@ export enum EchartsTimeseriesSeriesType {
   Middle = 'middle',
   End = 'end',
 }
+export enum TimeFormat{
+  Month = 'month',
+  Year = 'year',
+  MonthYear = 'month-year',
+}
 
 export type EchartsTimeseriesRaceFormData = QueryFormData & {
   annotationLayers: AnnotationLayer[];
@@ -96,6 +101,9 @@ export type EchartsTimeseriesRaceFormData = QueryFormData & {
   orientation?: OrientationType;
   duration?:number;
   maxBars?: number;
+  showGraphic?: boolean;
+  barColor?: string;
+  timeFormat?: TimeFormat;
 } & LegendFormData &
   TitleFormData;
 

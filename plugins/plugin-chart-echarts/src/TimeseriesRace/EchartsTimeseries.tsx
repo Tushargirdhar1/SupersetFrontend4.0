@@ -58,8 +58,9 @@ export default function EchartsTimeseries({
   coltypeMapping,
   dataArray = [],
   duration,
+  years=[]
 }: TimeseriesChartRaceTransformedProps) {
-  const { stack } = formData;
+  const { stack ,showGraphic} = formData;
   const echartRef = useRef<EchartsHandler | null>(null);
   // eslint-disable-next-line no-param-reassign
   refs.echartRef = echartRef;
@@ -96,6 +97,40 @@ export default function EchartsTimeseries({
       }, i * interval);
     }
   }, [dataArray]);
+
+  useEffect(() => {
+    const echartInstance = echartRef.current?.getEchartInstance();
+    if (!echartInstance || !showGraphic) return;
+    const updateFrequency = duration ?? 6000;
+    const interval = updateFrequency / years.length;
+
+
+    const updateYear = (year: number) => {
+      echartInstance.setOption({
+        graphic: {
+          elements: [
+            {
+              type: 'text',
+              right: 160,
+              bottom: 60,
+              style: {
+                text: year.toString(),
+                font: 'bolder 80px monospace',
+                fill: 'rgba(100, 100, 100, 0.25)',
+              },
+              z: 100,
+            },
+          ],
+        },
+      });
+    };
+
+    for (let i = 0; i < years.length; ++i) {
+      setTimeout(() => {
+        updateYear(years[i]);
+      }, i * interval);
+    }
+  }, [echartOptions, dataArray, years, showGraphic]);
 
   const getModelInfo = (target: ViewRootGroup, globalModel: GlobalModel) => {
     let el = target;

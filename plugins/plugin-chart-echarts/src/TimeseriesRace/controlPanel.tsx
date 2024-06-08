@@ -30,8 +30,10 @@ import {
 const {
   duration,
   maxBars,
+  showGraphic,
+  barColor,
+  timeFormat
 } = DEFAULT_FORM_DATA;
-
 
 const config: ControlPanelConfig = {
   controlPanelSections: [
@@ -39,7 +41,7 @@ const config: ControlPanelConfig = {
     sections.advancedAnalyticsControls,
     sections.annotationsAndLayersControls,
     sections.forecastIntervalControls,
-    
+
     {
       label: t('Chart PAGE'),
       tabOverride: 'customize',
@@ -51,7 +53,7 @@ const config: ControlPanelConfig = {
     {
       label: t('Chart Options'),
       expanded: true,
-      controlSetRows: [    
+      controlSetRows: [
         [
           {
             name: 'Duration',
@@ -76,7 +78,50 @@ const config: ControlPanelConfig = {
             },
           }
         ],
-      ],
+        [
+          {
+            name: 'showGraphic',
+            config: {
+              type: 'CheckboxControl',
+              label: t('Label Interval'),
+              renderTrigger: true,
+              default: showGraphic,
+              value: showGraphic, // Bind the value of showGraphic
+              description: t('Displays a Label Interval for the chart'),
+            },
+          }
+        ],
+        [
+          {
+            name: 'barColor',
+            config: {
+              type: 'TextControl',
+              label: t('Bar Color'),
+              default: barColor,
+              renderTrigger: true,
+              description: t('Change Color Of Bars'),
+            },
+          },
+        ],
+        [
+          {
+            name: 'timeFormat',
+            config: {
+              type: 'SelectControl',
+              label: t('Timeline Format'),
+              choices: [
+                ['month', 'Month'],
+                ['year', 'Year'],
+                ['month-year', 'MonthYear'],
+              ],
+              default: timeFormat,
+              renderTrigger: true,
+              description: t('Change Format for Label Timeline Interval'),
+            },
+          },
+        ],
+      ]
+
     },
   ],
 

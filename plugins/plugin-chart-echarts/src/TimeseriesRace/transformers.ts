@@ -68,6 +68,7 @@ import {
   StackControlsValue,
   TIMESERIES_CONSTANTS,
 } from '../constants';
+import { TimeFormat } from './types';
 
 // based on weighted wiggle algorithm
 // source: https://ieeexplore.ieee.org/document/4658136
@@ -167,6 +168,9 @@ export function transformSeries(
     timeCompare?: string[];
     duration?:number,
     maxBars?: number,
+    showGraphic?: boolean;
+    barColor?: string;
+    timeFormat?: TimeFormat;
   },
 ): SeriesOption | undefined {
   const { name } = series;
@@ -193,6 +197,9 @@ export function transformSeries(
     queryIndex = 0,
     duration,
     maxBars,
+    showGraphic,
+    barColor,
+    timeFormat,
   } = opts;
   const contexts = seriesContexts[name || ''] || [];
   const hasForecast =

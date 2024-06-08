@@ -156,6 +156,7 @@ export interface BaseTransformedRaceProps<F> {
   coltypeMapping?: Record<string, number>;
   dataArray?: any[];
   duration?: number;
+  years? :any[];
 }
 export type CrossFilterTransformedProps = {
   groupby: QueryFormColumn[];
