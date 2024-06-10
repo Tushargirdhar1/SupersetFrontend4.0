@@ -40,6 +40,7 @@ export interface Filter {
   key: string;
   id: string;
   urlDisplay?: string;
+  toolTipDescription?: string;
   operator?: FilterOperator;
   input?:
     | 'text'
