@@ -124,7 +124,7 @@ const OTHER_CATEGORY = t('Other');
 
 const ALL_CHARTS = t('All charts');
 
-const RECOMMENDED_TAGS = [t('Popular'),t('VCharts') ,t('ECharts'), t('Advanced-Analytics')];
+const RECOMMENDED_TAGS = [t('Popular'),t('vCharts') ,t('ECharts'), t('Advanced-Analytics')];
 
 export const VIZ_TYPE_CONTROL_TEST_ID = 'viz-type-control';
 
@@ -455,6 +455,7 @@ const Selector: React.FC<{
   className?: string;
 }> = ({ selector, sectionId, icon, isSelected, onClick, className }) => {
   const btnRef = useRef<HTMLButtonElement>(null);
+  const isVChartsTag = selector === 'vCharts';
 
   // see Element.scrollIntoViewIfNeeded()
   // see: https://developer.mozilla.org/en-US/docs/Web/API/Element/scrollIntoViewIfNeeded
@@ -476,6 +477,7 @@ const Selector: React.FC<{
       key={selector}
       name={selector}
       className={cx(className, isSelected && 'selected')}
+      style={isVChartsTag ? { color: "#2684BA", fontFamily: "Samarkan" } : {}}
       onClick={() => onClick(selector, sectionId)}
     >
       {icon}

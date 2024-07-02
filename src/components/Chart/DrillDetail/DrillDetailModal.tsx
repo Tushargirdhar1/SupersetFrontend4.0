@@ -50,7 +50,7 @@ const ModalFooter = ({
 
   return (
     <>
-      <Button
+      {/* <Button
         buttonStyle="secondary"
         buttonSize="small"
         onClick={exploreChart}
@@ -62,7 +62,7 @@ const ModalFooter = ({
         }
       >
         {t('Edit chart')}
-      </Button>
+      </Button> */}
       <Button
         buttonStyle="primary"
         buttonSize="small"

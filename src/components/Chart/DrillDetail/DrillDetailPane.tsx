@@ -16,14 +16,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-import React, {
-  ReactElement,
-  useCallback,
-  useEffect,
-  useMemo,
-  useRef,
-  useState,
-} from 'react';
+import React, { ReactElement, useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { useSelector } from 'react-redux';
 import {
   BinaryQueryObjectFilterClause,
@@ -49,8 +42,10 @@ import { useDatasetMetadataBar } from 'src/features/datasets/metadataBar/useData
 import TableControls from './DrillDetailTableControls';
 import { getDrillPayload } from './utils';
 import { ResultsPage } from './types';
+import Button from 'src/components/Button';
 
 const PAGE_SIZE = 50;
+const DOWNLOAD_PAGE_SIZE = 1000;
 
 interface DataType {
   [key: string]: any;
@@ -85,11 +80,12 @@ export default function DrillDetailPane({
   const lastPageIndex = useRef(pageIndex);
   const [filters, setFilters] = useState(initialFilters);
   const [isLoading, setIsLoading] = useState(false);
+  const [isCsvLoading, setIsCsvLoading] = useState(false); // New state for CSV loading
   const [responseError, setResponseError] = useState('');
   const [resultsPages, setResultsPages] = useState<Map<number, ResultsPage>>(
     new Map(),
   );
-  const [timeFormatting, setTimeFormatting] = useState({});
+  const [timeFormatting, setTimeFormatting] = useState<{ [key: string]: TimeFormatting }>({});
 
   const SAMPLES_ROW_LIMIT = useSelector(
     (state: { common: { conf: JsonObject } }) =>
@@ -105,6 +101,7 @@ export default function DrillDetailPane({
   const { metadataBar, status: metadataBarStatus } = useDatasetMetadataBar({
     datasetId: datasourceId,
   });
+
   // Get page of results
   const resultsPage = useMemo(() => {
     const nextResultsPage = resultsPages.get(pageIndex);
@@ -138,14 +135,17 @@ export default function DrillDetailPane({
                   ? TimeFormatting.Original
                   : TimeFormatting.Formatted
               }
-              onChange={value =>
-                setTimeFormatting(state => ({ ...state, [column]: value }))
+              onChange={(value: string) =>
+                setTimeFormatting(state => ({
+                  ...state,
+                  [column]: value as unknown as TimeFormatting,
+                }))
               }
             />
           ) : (
             column
           ),
-        render: value => {
+        render: (value: any) => {
           if (value === true || value === false) {
             return <BooleanCell value={value} />;
           }
@@ -265,6 +265,63 @@ export default function DrillDetailPane({
     (!responseError && !resultsPages.size) ||
     metadataBarStatus === ResourceStatus.Loading;
 
+  // Function to convert data to CSV format
+  const convertToCSV = (data: DataType[]): string => {
+    const csvRows: string[] = [];
+    if (resultsPage) {
+      const headers = resultsPage.colNames.join(',');
+      csvRows.push(headers);
+
+      data.forEach(row => {
+        const values = resultsPage.colNames.map(col => {
+          const val = row[col];
+          return typeof val === 'string' ? `"${val.replace(/"/g, '""')}"` : val;
+        });
+        csvRows.push(values.join(','));
+      });
+    }
+    return csvRows.join('\n');
+  };
+
+  // Function to handle CSV download
+  const handleDownloadCSV = async () => {
+    setIsCsvLoading(true); // Set loading state to true
+    try {
+      if (resultsPage) {
+        const totalPages = Math.ceil(resultsPage.total / DOWNLOAD_PAGE_SIZE);
+        const jsonPayload = getDrillPayload(formData, filters) ?? {};
+  
+        const fetchPromises = Array.from({ length: totalPages }, (_, i) =>
+          getDatasourceSamples(
+            datasourceType,
+            datasourceId,
+            false,
+            jsonPayload,
+            DOWNLOAD_PAGE_SIZE,
+            i + 1,
+          )
+        );
+  
+        const responses = await Promise.all(fetchPromises);
+        const allData = responses.flatMap(response => response.data);
+  
+        const csvData = convertToCSV(allData);
+        const blob = new Blob([csvData], { type: 'text/csv' });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = 'data.csv';
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+      }
+    } catch (error) {
+      console.error('Error downloading CSV:', error);
+    } finally {
+      setIsCsvLoading(false); // Set loading state to false
+    }
+  };
+
   let tableContent = null;
   if (responseError) {
     // Render error if page download failed
@@ -288,21 +345,35 @@ export default function DrillDetailPane({
     // Render table if at least one page has successfully loaded
     tableContent = (
       <Resizable>
-        <Table
-          data={data}
-          columns={mappedColumns}
-          size={TableSize.Small}
-          defaultPageSize={PAGE_SIZE}
-          recordCount={resultsPage?.total}
-          usePagination
-          loading={isLoading}
-          onChange={pagination =>
-            setPageIndex(pagination.current ? pagination.current - 1 : 0)
-          }
-          resizable
-          virtualize
-          allowHTML
-        />
+        <>
+          <Button
+            buttonStyle="primary"
+            buttonSize="small"
+            onClick={handleDownloadCSV}
+            disabled={isCsvLoading}
+            css={css`
+              margin-bottom: ${theme.gridUnit * 2}px;
+              max-width: 130px;
+            `}
+          >
+            {isCsvLoading ? 'Downloading...' : 'Download AS .CSV'}
+          </Button>
+          <Table
+            data={data}
+            columns={mappedColumns}
+            size={TableSize.Small}
+            defaultPageSize={PAGE_SIZE}
+            recordCount={resultsPage?.total}
+            usePagination
+            loading={isLoading}
+            onChange={pagination =>
+              setPageIndex(pagination.current ? pagination.current - 1 : 0)
+            }
+            resizable
+            virtualize
+            allowHTML
+          />
+        </>
       </Resizable>
     );
   }

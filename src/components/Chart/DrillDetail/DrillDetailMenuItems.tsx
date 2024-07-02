@@ -154,6 +154,7 @@ const DrillDetailMenuItems = ({
           onClick={openModal.bind(null, [])}
           style={{
             fontSize: 18,
+            height: 18,
             cursor: 'pointer',
           }}
         />

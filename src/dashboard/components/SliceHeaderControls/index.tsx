@@ -222,8 +222,8 @@ const ViewResultsModalTrigger = ({
                 tooltip={
                   !canExplore
                     ? t(
-                        'You do not have sufficient permissions to edit the chart',
-                      )
+                      'You do not have sufficient permissions to edit the chart',
+                    )
                     : undefined
                 }
               >
@@ -366,8 +366,8 @@ const SliceHeaderControls = (props: SliceHeaderControlsPropsWithRouter) => {
     isFullSize,
     cachedDttm = [],
     updatedDttm = null,
-    addSuccessToast = () => {},
-    addDangerToast = () => {},
+    addSuccessToast = () => { },
+    addDangerToast = () => { },
     supersetCanShare = false,
     isCached = [],
   } = props;
@@ -573,11 +573,14 @@ const SliceHeaderControls = (props: SliceHeaderControlsPropsWithRouter) => {
       {slice.description && (
         <ModalTrigger
           triggerNode={
-            <InfoCircleOutlined         style={{
-              fontSize: 18,
-              height: 18,
+            <InfoCircleOutlined
+            style={{
+              fontSize: 17,
+              margin: '4px',
               cursor: 'pointer',
-            }}/>
+              padding: '2px',
+            }}
+            />
           }
           modalTitle={t('Chart Description: %s', slice.slice_name)}
           modalBody={<p>{slice.description}</p>}
